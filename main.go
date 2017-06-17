@@ -1,7 +1,7 @@
 package main
 
-import "github.com/longtranf/golang-tutorials/function"
+import "github.com/longtranf/golang-tutorials/methods"
 
 func main() {
-	function.PrintFiboUsingFunctionClosure()
+	methods.PrintResultExReader()
 }

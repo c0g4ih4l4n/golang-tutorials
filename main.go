@@ -1,7 +1,7 @@
 package main
 
-import "github.com/longtranf/golang-tutorials/methods"
+import "github.com/longtranf/golang-tutorials/concurrency"
 
 func main() {
-	methods.PrintResultExReader()
+	concurrency.PrintResultExercise()
 }

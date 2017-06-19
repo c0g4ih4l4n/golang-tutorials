@@ -1,6 +1,9 @@
 package concurrency
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+)
 
 // Tree :
 // basic tree
@@ -19,10 +22,26 @@ func walk(t *Tree, ch chan int) {
 	walk(t.Right, ch)
 }
 
-func same(t1 *Tree, t2 *Tree) {
-	ch1, ch2 := make(chan int), make(chan int)
-	walk(t1, ch1)
-	walk(t2, ch2)
+func walker(t *Tree) <-chan int {
+	ch := make(chan int)
+	go func() {
+		walk(t, ch)
+		close(ch)
+	}()
+	return ch
+}
+
+func same(t1 *Tree, t2 *Tree) bool {
+	ch1, ch2 := walker(t1), walker(t2)
+	for {
+		v1, ok1 := <-ch1
+		v2, ok2 := <-ch2
+		if v1 != v2 || (!ok1 && ok2) || (ok1 && !ok2) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func insert(t *Tree, v int) *Tree {
@@ -47,6 +66,12 @@ func New(n, k int) *Tree {
 	return t
 }
 
+// PrintResultExercise :
+// result exercise
 func PrintResultExercise() {
+	var t1, t2 *Tree
+	t1 = New(10, 2)
+	t2 = New(10, 2)
 
+	fmt.Println(same(t1, t2))
 }

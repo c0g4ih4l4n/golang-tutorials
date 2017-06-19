@@ -10,11 +10,18 @@ import (
 // given string
 // count number of word in that string
 func PrintWordCount() {
-	var s = "To day is Friday"
+	var s = "To day is si Friday"
+	fmt.Println(s)
 	fmt.Println(countWord(s))
 }
 
-func countWord(s string) int {
-	var words = strings.Fields(s)
-	return len(words)
+func countWord(s string) map[string]int {
+
+	listWord := make(map[string]int)
+
+	for _, w := range strings.Fields(s) {
+		listWord[strings.ToLower(w)]++
+	}
+
+	return listWord
 }

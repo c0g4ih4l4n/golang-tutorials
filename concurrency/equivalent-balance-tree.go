@@ -13,31 +13,45 @@ type Tree struct {
 	Right *Tree
 }
 
-func walk(t *Tree, ch chan int) {
+// quit to stop goroutine
+// but it's doesn't reallyy need
+// because we dont loop in channel
+func walk(t *Tree, ch, quit chan int) {
 	if t == nil {
 		return
 	}
-	walk(t.Left, ch)
-	ch <- t.Value
-	walk(t.Right, ch)
+
+	walk(t.Left, ch, quit)
+	select {
+	case ch <- t.Value:
+	//val success fully sent
+	case <-quit:
+		return
+	}
+	walk(t.Right, ch, quit)
 }
 
-func walker(t *Tree) <-chan int {
+func walker(t *Tree, quit chan int) <-chan int {
 	ch := make(chan int)
 	go func() {
-		walk(t, ch)
+		walk(t, ch, quit)
 		close(ch)
 	}()
 	return ch
 }
 
 func same(t1 *Tree, t2 *Tree) bool {
-	ch1, ch2 := walker(t1), walker(t2)
+	quit := make(chan int)
+	ch1, ch2 := walker(t1, quit), walker(t2, quit)
 	for {
 		v1, ok1 := <-ch1
 		v2, ok2 := <-ch2
-		if v1 != v2 || (!ok1 && ok2) || (ok1 && !ok2) {
+		if v1 != v2 || !ok1 && ok2 || ok1 && !ok2 {
+			quit <- 0
 			return false
+		}
+		if !ok1 && !ok2 {
+			return true
 		}
 	}
 
@@ -69,9 +83,18 @@ func New(n, k int) *Tree {
 // PrintResultExercise :
 // result exercise
 func PrintResultExercise() {
-	var t1, t2 *Tree
-	t1 = New(10, 2)
-	t2 = New(10, 2)
+	fmt.Print("tree.New(100, 1) == tree.New(100, 1): ")
+	if same(New(100, 1), New(100, 1)) {
+		fmt.Println("PASSED")
+	} else {
+		fmt.Println("FAILED")
+	}
 
-	fmt.Println(same(t1, t2))
+	fmt.Print("tree.New(10, 1) != tree.New(20, 1): ")
+	if !same(New(10, 1), New(20, 1)) {
+		fmt.Println("PASSED")
+	} else {
+		fmt.Println("FAILED")
+	}
+
 }

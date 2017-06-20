@@ -12,6 +12,7 @@ type Fetcher interface {
 	Fetch(url string) (body string, urls []string, err error)
 }
 
+// SafeFetchURLs for save fetch url
 type SafeFetchURLs struct {
 	fetchURLs map[string]int
 	mux       sync.Mutex
@@ -39,8 +40,6 @@ func Crawl(url string, depth int, fetcher Fetcher, saveURLs *SafeFetchURLs) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println()
-	fmt.Println(depth)
 	fmt.Printf("found: %s %q\n", url, body)
 	for _, u := range urls {
 		Crawl(u, depth-1, fetcher, saveURLs)
